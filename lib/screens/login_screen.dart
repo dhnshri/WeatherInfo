@@ -1,3 +1,4 @@
+import 'package:WeatherLogin/screens/register_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -73,7 +74,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           style: TextStyle(color: Colors.blue),
                           recognizer: TapGestureRecognizer()
                             ..onTap = () {
-                              //Nevigate Screen
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => RegistrationForm()));
                             })
                     ],
                   ),
