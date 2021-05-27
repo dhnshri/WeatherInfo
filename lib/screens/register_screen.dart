@@ -1,7 +1,9 @@
+import 'package:WeatherLogin/bloc/registration_bloc.dart';
 import 'package:WeatherLogin/screens/login_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class RegistrationForm extends StatefulWidget {
   @override
@@ -10,8 +12,10 @@ class RegistrationForm extends StatefulWidget {
 
 class _RegistrationFormState extends State<RegistrationForm> {
   GlobalKey<FormState> _formkey = GlobalKey<FormState>();
+  bool isVisible = true;
   @override
   Widget build(BuildContext context) {
+    final bloc = Provider.of<RegistrationBloc>(context, listen: false);
     return Scaffold(
       body: Form(
         key: _formkey,
@@ -30,65 +34,105 @@ class _RegistrationFormState extends State<RegistrationForm> {
                 SizedBox(
                   height: 10,
                 ),
-                TextField(
-                  keyboardType: TextInputType.text,
-                  decoration: InputDecoration(
-                    hintText: "Enter  Name",
-                    labelText: " Name",
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20)),
-                  ),
-                ),
+                StreamBuilder<String>(
+                    stream: bloc.name,
+                    builder: (context, snapshot) {
+                      return TextField(
+                        keyboardType: TextInputType.text,
+                        decoration: InputDecoration(
+                          hintText: "Enter  Name",
+                          labelText: " Name",
+                          errorText: snapshot.error,
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20)),
+                        ),
+                        onChanged: (value) => bloc.changeName,
+                      );
+                    }),
                 SizedBox(
                   height: 10,
                 ),
-                TextField(
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                    hintText: "Enter Email",
-                    labelText: "Email",
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20)),
-                  ),
-                ),
+                StreamBuilder<String>(
+                    stream: bloc.email,
+                    builder: (context, snapshot) {
+                      return TextField(
+                        keyboardType: TextInputType.emailAddress,
+                        decoration: InputDecoration(
+                          hintText: "Enter Email",
+                          labelText: "Email",
+                          errorText: snapshot.error,
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20)),
+                        ),
+                        onChanged: (value) => bloc.changeEmail,
+                      );
+                    }),
                 SizedBox(
                   height: 10,
                 ),
-                TextField(
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    hintText: "Enter Phone Number",
-                    labelText: "Phone Number",
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20)),
-                  ),
-                ),
+                StreamBuilder<Object>(
+                    stream: bloc.phonenumber,
+                    builder: (context, snapshot) {
+                      return TextField(
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          hintText: "Enter Phone Number",
+                          labelText: "Phone Number",
+                          errorText: snapshot.error,
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20)),
+                        ),
+                        onChanged: (value) => bloc.changePhonenumber,
+                      );
+                    }),
                 SizedBox(
                   height: 15,
                 ),
-                TextField(
-                  keyboardType: TextInputType.emailAddress,
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    hintText: "Enter Password",
-                    labelText: "Password",
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20)),
-                  ),
-                ),
+                StreamBuilder<Object>(
+                    stream: bloc.password,
+                    builder: (context, snapshot) {
+                      return TextField(
+                        keyboardType: TextInputType.emailAddress,
+                        obscureText: true,
+                        decoration: InputDecoration(
+                          hintText: "Enter Password",
+                          labelText: "Password",
+                          errorText: snapshot.error,
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20)),
+                        ),
+                        onChanged: (value) => bloc.changePassword,
+                      );
+                    }),
                 SizedBox(
                   height: 15,
                 ),
-                TextField(
-                  keyboardType: TextInputType.emailAddress,
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    hintText: "Enter Confirm Password",
-                    labelText: " Confirm Password",
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20)),
-                  ),
-                ),
+                StreamBuilder<Object>(
+                    stream: bloc.confirmpassword,
+                    builder: (context, snapshot) {
+                      return TextField(
+                        keyboardType: TextInputType.emailAddress,
+                        obscureText: isVisible,
+                        decoration: InputDecoration(
+                          hintText: "Enter Confirm Password",
+                          labelText: " Confirm Password",
+                          errorText: snapshot.error,
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20)),
+                          suffixIcon: IconButton(
+                            icon: isVisible
+                                ? Icon(Icons.visibility)
+                                : Icon(Icons.visibility_off),
+                            onPressed: () {
+                              setState(() {
+                                isVisible = !isVisible;
+                              });
+                            },
+                          ),
+                        ),
+                        onChanged: (value) => bloc.changeConfirmPassword,
+                      );
+                    }),
                 SizedBox(
                   height: 15,
                 ),
@@ -129,26 +173,35 @@ class _RegistrationFormState extends State<RegistrationForm> {
   ///////////////////////////////////////////////
 
   Widget _registerbutton() {
-    return GestureDetector(
-      onTap: () {
-        //Function body
-      },
-      child: Container(
-        height: 40,
-        width: 120,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          color: Color(0xffff69b4),
-        ),
-        child: Text(
-          "Register",
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 23,
-          ),
-        ),
-      ),
-    );
+    final bloc = Provider.of<RegistrationBloc>(context, listen: false);
+    return StreamBuilder<Object>(
+        stream: bloc.isValid,
+        builder: (context, snapshot) {
+          return GestureDetector(
+            onTap: snapshot.hasError || !snapshot.hasData
+                ? null
+                : () {
+                    bloc.submit();
+                  },
+            child: Container(
+              height: 40,
+              width: 120,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                color: snapshot.hasError || !snapshot.hasData
+                    ? Colors.grey
+                    : Color(0xffff69b4),
+              ),
+              child: Text(
+                "Register",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 23,
+                ),
+              ),
+            ),
+          );
+        });
   }
 }

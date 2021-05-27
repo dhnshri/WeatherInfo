@@ -1,7 +1,9 @@
+import 'package:WeatherLogin/bloc/login_bloc.dart';
 import 'package:WeatherLogin/screens/register_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -10,8 +12,10 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   GlobalKey<FormState> _formkey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
+    final bloc = Provider.of<LoginBloc>(context, listen: false);
     return Scaffold(
       body: Form(
         key: _formkey,
@@ -30,28 +34,40 @@ class _LoginScreenState extends State<LoginScreen> {
                 SizedBox(
                   height: 10,
                 ),
-                TextField(
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                    hintText: "Enter User Name",
-                    labelText: "User Name",
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20)),
-                  ),
-                ),
+                StreamBuilder<String>(
+                    stream: bloc.loginEmail,
+                    builder: (context, snapshot) {
+                      return TextField(
+                        keyboardType: TextInputType.emailAddress,
+                        decoration: InputDecoration(
+                          hintText: "Enter Email",
+                          labelText: "Email",
+                          errorText: snapshot.error,
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20)),
+                        ),
+                        onChanged: (value) => bloc.changeLoginEmail,
+                      );
+                    }),
                 SizedBox(
                   height: 15,
                 ),
-                TextField(
-                  keyboardType: TextInputType.emailAddress,
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    hintText: "Enter Password",
-                    labelText: "Password",
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20)),
-                  ),
-                ),
+                StreamBuilder<String>(
+                    stream: bloc.loginPassword,
+                    builder: (context, snapshot) {
+                      return TextField(
+                        keyboardType: TextInputType.emailAddress,
+                        obscureText: true,
+                        decoration: InputDecoration(
+                          hintText: "Enter Password",
+                          labelText: "Password",
+                          errorText: snapshot.error,
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20)),
+                        ),
+                        onChanged: (value) => bloc.changeLoginPassword,
+                      );
+                    }),
                 SizedBox(
                   height: 15,
                 ),
@@ -89,26 +105,35 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _submitbutton() {
-    return GestureDetector(
-      onTap: () {
-        //Function body
-      },
-      child: Container(
-        height: 40,
-        width: 120,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          color: Color(0xffff69b4),
-        ),
-        child: Text(
-          "Login",
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 23,
-          ),
-        ),
-      ),
-    );
+    final bloc = Provider.of<LoginBloc>(context, listen: false);
+    return StreamBuilder<Object>(
+        stream: bloc.isValid,
+        builder: (context, snapshot) {
+          return GestureDetector(
+            onTap: snapshot.hasError || !snapshot.hasData
+                ? null
+                : () {
+                    bloc.submit();
+                  },
+            child: Container(
+              height: 40,
+              width: 120,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                color: snapshot.hasError || !snapshot.hasData
+                    ? Colors.grey
+                    : Color(0xffff69b4),
+              ),
+              child: Text(
+                "Login",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 23,
+                ),
+              ),
+            ),
+          );
+        });
   }
 }
