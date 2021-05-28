@@ -18,7 +18,7 @@ class RegistrationBloc with Validator {
   Stream<String> get confirmpassword =>
       _confirmpassword.stream.transform(confirmPasswordValidator);
 
-  Stream<bool> get isValid => Rx.combineLatest5(name, email, phonenumber,
+  Stream<bool> get isregiValid => Rx.combineLatest5(name, email, phonenumber,
       password, confirmpassword, (a, b, c, d, e) => true);
 
   Stream<bool> get isPasswordMatch =>

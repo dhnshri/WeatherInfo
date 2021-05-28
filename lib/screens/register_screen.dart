@@ -175,7 +175,7 @@ class _RegistrationFormState extends State<RegistrationForm> {
   Widget _registerbutton() {
     final bloc = Provider.of<RegistrationBloc>(context, listen: false);
     return StreamBuilder<Object>(
-        stream: bloc.isValid,
+        stream: bloc.isregiValid,
         builder: (context, snapshot) {
           return GestureDetector(
             onTap: snapshot.hasError || !snapshot.hasData
